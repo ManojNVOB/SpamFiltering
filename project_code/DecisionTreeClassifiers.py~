@@ -1,0 +1,67 @@
+
+# coding: utf-8
+
+# In[17]:
+
+import os
+import numpy as np
+import pandas as pd
+from collections import Counter
+from sklearn.metrics import confusion_matrix
+from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.cross_validation import train_test_split
+
+df = pd.read_csv('/home/datascience/Desktop/SpamFiltering/features.csv', sep=',', lineterminator='\n',
+                 na_values=['-'])
+
+columns = list(df.columns.values)
+words = columns[:]
+words.remove("is_spam")
+words.remove("file_name")
+words.remove("ind")
+
+df_spam = pd.DataFrame()
+df_spam["is_spam"] = df["is_spam"]
+df.drop('is_spam', axis=1, inplace=True)
+
+df.drop('file_name', axis=1, inplace=True)
+df.drop('ind', axis=1, inplace=True)
+
+X_train, X_test, y_train, y_test = train_test_split(df,df_spam, train_size = 0.6)
+
+# simple decision tree classifier
+decisionTree = tree.DecisionTreeClassifier()
+decisionTree = decisionTree.fit(X_train,y_train)
+decisionTreeResult = decisionTree.predict(X_test)
+
+print "Decision tree results"
+print "confusion matrix"
+print confusion_matrix(y_test, decisionTreeResult)
+print "precision and recall scores"
+print precision_recall_fscore_support(y_test,decisionTreeResult,pos_label=0)
+
+
+randomForest1 = RandomForestClassifier(n_estimators=10, max_depth=None,min_samples_split=2, random_state=0)
+randomForest1 = randomForest1.fit(X_train, y_train)
+randomForestResult1 = randomForest1.predict(X_test)
+
+print "Random forest results"
+print "confusion matrix"
+print confusion_matrix(y_test, randomForestResult1)
+print "precision and recall scores"
+precision_recall_fscore_support(y_test,extraTreesResult,pos_label=0)
+
+# extra trees classifier (2 sec)
+extraTrees = ExtraTreesClassifier(n_estimators=10, max_depth=None,min_samples_split=2, random_state=0)
+extraTrees = extraTrees.fit(X_train, y_train)
+extraTreesResult = extraTrees.predict(X_test)
+
+print "Extra trees classifier results"
+print "confusion matrix"
+print confusion_matrix(y_test, extraTreesResult)
+print "precision and recall scores"
+precision_recall_fscore_support(y_test,extraTreesResult,pos_label=0)
+
+
